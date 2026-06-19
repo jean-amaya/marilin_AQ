@@ -16,8 +16,8 @@ SCHEDULE = "Lunes a sábado | 9:00 a. m. - 6:00 p. m."
 CITY = "Perú"
 
 # Cambiar cuando tenga los enlaces reales:
-INSTAGRAM_URL = "https://www.instagram.com/"
-FACEBOOK_URL = "https://www.facebook.com/"
+INSTAGRAM_URL = "https://www.instagram.com/psico._marilin?igsh=MXF0dnlrdHpob25yaA=="
+
 
 WA_TEXT = quote("Hola Marilin, deseo información para agendar una cita de asesoramiento psicológico.")
 WHATSAPP_URL = f"https://wa.me/{PHONE_WHATSAPP}?text={WA_TEXT}"
@@ -586,10 +586,10 @@ st.markdown(
             </div>
             <div class="notice">
                 <strong>Nota importante:</strong><br>
-                Este sitio permite coordinar información y citas. No reemplaza servicios de emergencia. Si existe una situación de riesgo inmediato, acude al centro de emergencia más cercano o comunícate con una línea de ayuda local.
+                Este sitio permite coordinar información y citas.
                 <br><br>
-                <strong>Dato profesional sugerido:</strong><br>
-                Agregar N.° de colegiatura y condición de habilitación cuando corresponda.
+                <strong>Dato profesional:</strong><br>
+                Psicolocga colegiada
             </div>
         </div>
     </section>
