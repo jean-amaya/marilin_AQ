@@ -1,606 +1,556 @@
 import base64
 from pathlib import Path
-from urllib.parse import quote
 
 import streamlit as st
 
-# =====================================================
-# DATOS DEL NEGOCIO
-# =====================================================
-BUSINESS_NAME = "Marilin Amaya"
-PROFESSION = "Psicóloga"
-BRAND_LINE = "Te acompaño en tu proceso de bienestar emocional y desarrollo personal."
-PHONE_DISPLAY = "+51 934 386 532"
-PHONE_WHATSAPP = "51934386532"
-SCHEDULE = "Lunes a sábado | 9:00 a. m. - 6:00 p. m."
-CITY = "Perú"
 
-# Cambiar cuando tenga los enlaces reales:
-INSTAGRAM_URL = "https://www.instagram.com/psico._marilin?igsh=MXF0dnlrdHpob25yaA=="
-FACEBOOK = "https://www.facebook.com/"
+# =========================================================
+# CONFIGURACIÓN GENERAL
+# =========================================================
 
-WA_TEXT = quote("Hola Marilin, deseo información para agendar una cita de asesoramiento psicológico.")
-WHATSAPP_URL = f"https://wa.me/{PHONE_WHATSAPP}?text={WA_TEXT}"
-
-# =====================================================
-# CONFIGURACIÓN STREAMLIT
-# =====================================================
 st.set_page_config(
-    page_title="Marilin Amaya | Psicología y Bienestar",
-    page_icon="🌿",
+    page_title="Marilin Amaya Psicóloga",
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# =====================================================
-# BÚSQUEDA ROBUSTA DE ARCHIVOS
-# Evita FileNotFoundError aunque cambie la ubicación o extensión.
-# Según tu GitHub:
-# - logo_b64.jpeg = portada
-# - logo_marilin_amaya.png = logo principal
-# =====================================================
 BASE_DIR = Path(__file__).resolve().parent
 
+# Archivos subidos en GitHub
+PORTADA_PATH = BASE_DIR / "logo_b64.jpeg"
+LOGO_PATH = BASE_DIR / "logo_marilin_amaya.png"
 
-def find_file(file_names: list[str]) -> Path | None:
-    """Busca archivos en la raíz y carpetas comunes. También compara sin distinguir mayúsculas/minúsculas."""
-    folders = [
-        BASE_DIR,
-        BASE_DIR / "assets",
-        BASE_DIR / "imagenes",
-        BASE_DIR / "images",
-        BASE_DIR / "img",
-        BASE_DIR / "static",
-    ]
-
-    # Búsqueda exacta
-    for folder in folders:
-        for file_name in file_names:
-            path = folder / file_name
-            if path.exists() and path.is_file():
-                return path
-
-    # Búsqueda tolerante a mayúsculas/minúsculas
-    desired = {name.lower() for name in file_names}
-    for folder in folders:
-        if folder.exists() and folder.is_dir():
-            for item in folder.iterdir():
-                if item.is_file() and item.name.lower() in desired:
-                    return item
-
-    return None
+WHATSAPP_NUMBER = "51934386532"
+WHATSAPP_TEXT = "Hola, deseo información para agendar una cita."
+WHATSAPP_URL = f"https://wa.me/{WHATSAPP_NUMBER}?text={WHATSAPP_TEXT.replace(' ', '%20')}"
 
 
-def get_mime_type(path: Path) -> str:
-    suffix = path.suffix.lower()
-    if suffix in [".jpg", ".jpeg"]:
-        return "image/jpeg"
-    if suffix == ".webp":
-        return "image/webp"
-    if suffix == ".svg":
-        return "image/svg+xml"
-    return "image/png"
+# =========================================================
+# FUNCIONES
+# =========================================================
 
-
-def image_to_data_uri(path: Path | None) -> str:
-    """Convierte imagen a data URI. Si no existe, devuelve vacío y la app continúa."""
-    if path is None or not path.exists() or not path.is_file():
-        return ""
+def image_to_base64(path: Path) -> str | None:
+    """Convierte una imagen local a base64. Si no existe, devuelve None."""
     try:
-        encoded = base64.b64encode(path.read_bytes()).decode("utf-8")
-        return f"data:{get_mime_type(path)};base64,{encoded}"
+        if path.exists():
+            with open(path, "rb") as file:
+                return base64.b64encode(file.read()).decode()
+        return None
     except Exception:
-        return ""
+        return None
 
 
-# Nombres reales de tu repositorio + nombres alternativos por seguridad
-PORTADA_PATH = find_file([
-    "logo_b64.jpeg",      # PORTADA según tu GitHub
-    "logo_b64.jpg",
-    "logo_b64.png",
-    "portada_marilin_amaya.png",
-    "portada_marilin_amaya.jpg",
-    "portada.png",
-    "portada.jpg",
-])
+portada_b64 = image_to_base64(PORTADA_PATH)
+logo_b64 = image_to_base64(LOGO_PATH)
 
-LOGO_PATH = find_file([
-    "logo_marilin_amaya.png",  # LOGO principal según tu GitHub
-    "logo_marilin_amaya.jpg",
-    "logo_marilin_amaya.jpeg",
-    "logo.png",
-    "logo.jpg",
-])
 
-PORTADA_URI = image_to_data_uri(PORTADA_PATH)
-LOGO_URI = image_to_data_uri(LOGO_PATH)
+# =========================================================
+# ESTILOS
+# =========================================================
 
-# =====================================================
-# CSS
-# =====================================================
 st.markdown(
     """
     <style>
-    :root {
-        --cream: #fffaf4;
-        --bg: #f7f2ec;
-        --sage: #8c9b78;
-        --sage-dark: #667356;
-        --lilac: #a991b3;
-        --gold: #c8a14a;
-        --text: #3d3935;
-        --muted: #716c66;
-        --card: rgba(255, 250, 244, 0.92);
-    }
+        .stApp {
+            background: linear-gradient(180deg, #f7f1e8 0%, #fbf7ef 100%);
+            color: #3d3936;
+            font-family: 'Segoe UI', sans-serif;
+        }
 
-    .stApp {
-        background:
-            radial-gradient(circle at top left, rgba(140,155,120,0.22), transparent 34%),
-            radial-gradient(circle at bottom right, rgba(169,145,179,0.18), transparent 36%),
-            var(--bg);
-        color: var(--text);
-    }
+        header, footer {
+            visibility: hidden;
+        }
 
-    header[data-testid="stHeader"] { background: transparent; }
+        .block-container {
+            padding-top: 1.5rem;
+            padding-bottom: 2rem;
+            max-width: 1100px;
+        }
 
-    .block-container {
-        padding-top: 1.2rem;
-        padding-bottom: 4rem;
-        max-width: 1180px;
-    }
+        .main-card {
+            background: rgba(255, 252, 246, 0.92);
+            border: 1px solid #ead8ba;
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: 0 10px 28px rgba(114, 93, 64, 0.08);
+            margin-bottom: 22px;
+        }
 
-    .hero-card {
-        background: linear-gradient(135deg, rgba(255,250,244,0.96), rgba(244,239,230,0.92));
-        border: 1px solid rgba(200,161,74,0.28);
-        border-radius: 32px;
-        padding: 1.15rem;
-        box-shadow: 0 18px 45px rgba(61,57,53,0.08);
-        overflow: hidden;
-    }
+        .cover-img {
+            width: 100%;
+            border-radius: 18px;
+            display: block;
+            border: 1px solid #ead8ba;
+        }
 
-    .portada-img {
-        width: 100%;
-        max-height: 360px;
-        object-fit: cover;
-        border-radius: 24px;
-        border: 1px solid rgba(140,155,120,0.16);
-        display: block;
-    }
+        .cover-fallback {
+            width: 100%;
+            height: 260px;
+            border-radius: 18px;
+            background: linear-gradient(120deg, #f5eadf, #e8e0d3, #c9b6d5);
+            border: 1px solid #ead8ba;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8e7ca7;
+            font-size: 34px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
 
-    .portada-fallback {
-        min-height: 300px;
-        border-radius: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        background:
-            radial-gradient(circle at top left, rgba(140,155,120,0.26), transparent 35%),
-            radial-gradient(circle at bottom right, rgba(169,145,179,0.22), transparent 38%),
-            linear-gradient(135deg, #fffaf4, #f4efe6);
-        border: 1px solid rgba(140,155,120,0.16);
-    }
+        .profile-row {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+            padding: 24px 16px 8px 16px;
+        }
 
-    .portada-fallback h1 {
-        color: var(--lilac);
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: clamp(2.4rem, 7vw, 5rem);
-        letter-spacing: 0.11em;
-        margin: 0;
-    }
+        .logo-img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid #ffffff;
+            box-shadow: 0 6px 18px rgba(85, 70, 50, 0.15);
+        }
 
-    .portada-fallback p {
-        color: var(--sage-dark);
-        font-size: 1.15rem;
-        margin-top: 0.7rem;
-    }
+        .logo-fallback {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #f7f1e8;
+            border: 4px solid white;
+            box-shadow: 0 6px 18px rgba(85, 70, 50, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9b84ae;
+            font-size: 42px;
+            font-weight: 700;
+        }
 
-    .hero-content {
-        display: grid;
-        grid-template-columns: 170px 1fr;
-        gap: 1.5rem;
-        align-items: center;
-        padding: 1.4rem 1rem 0.7rem 1rem;
-    }
+        .eyebrow {
+            color: #89936f;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
 
-    .logo-img {
-        width: 160px;
-        height: 160px;
-        object-fit: cover;
-        border-radius: 999px;
-        border: 5px solid #fffaf4;
-        box-shadow: 0 12px 30px rgba(61,57,53,0.14);
-        background: white;
-    }
+        .title {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #3f3b39;
+            margin-bottom: 8px;
+        }
 
-    .logo-fallback {
-        width: 160px;
-        height: 160px;
-        border-radius: 999px;
-        border: 5px solid #fffaf4;
-        background: white;
-        box-shadow: 0 12px 30px rgba(61,57,53,0.14);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--lilac);
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: 3.6rem;
-        font-weight: 500;
-    }
+        .subtitle {
+            color: #605d59;
+            font-size: 15px;
+            line-height: 1.7;
+            max-width: 720px;
+            margin-bottom: 18px;
+        }
 
-    .eyebrow {
-        color: var(--sage-dark);
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-        font-size: 0.78rem;
-        font-weight: 700;
-        margin-bottom: 0.4rem;
-    }
+        .btn-row {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
 
-    .hero-title {
-        font-family: Georgia, 'Times New Roman', serif;
-        font-size: clamp(2.2rem, 5vw, 4.8rem);
-        line-height: 0.98;
-        font-weight: 500;
-        letter-spacing: 0.08em;
-        color: var(--lilac);
-        margin: 0;
-        text-transform: uppercase;
-    }
+        .btn-primary {
+            background: #8da079;
+            color: white !important;
+            padding: 12px 22px;
+            border-radius: 999px;
+            text-decoration: none !important;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 6px 14px rgba(94, 110, 76, 0.24);
+            display: inline-block;
+        }
 
-    .hero-subtitle {
-        margin-top: 0.45rem;
-        font-size: clamp(1rem, 2vw, 1.35rem);
-        color: var(--sage-dark);
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        font-weight: 600;
-    }
+        .btn-secondary {
+            background: white;
+            color: #5f664e !important;
+            padding: 12px 22px;
+            border-radius: 999px;
+            text-decoration: none !important;
+            font-weight: 700;
+            font-size: 14px;
+            border: 1px solid #d8c8aa;
+            display: inline-block;
+        }
 
-    .hero-text {
-        font-size: 1.08rem;
-        color: var(--muted);
-        max-width: 760px;
-        margin-top: 0.9rem;
-        line-height: 1.7;
-    }
+        h2 {
+            color: #3f3b39;
+            font-size: 30px !important;
+            font-weight: 800 !important;
+            margin-top: 10px !important;
+            margin-bottom: 10px !important;
+        }
 
-    .cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.8rem;
-        margin-top: 1.25rem;
-    }
+        .section-text {
+            color: #625f5b;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 22px;
+        }
 
-    .btn-primary, .btn-secondary {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none !important;
-        border-radius: 999px;
-        padding: 0.86rem 1.35rem;
-        font-weight: 700;
-        border: 1px solid transparent;
-    }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 16px;
+        }
 
-    .btn-primary {
-        background: var(--sage);
-        color: white !important;
-        box-shadow: 0 12px 24px rgba(102,115,86,0.22);
-    }
+        .service-card {
+            background: rgba(255, 252, 246, 0.96);
+            border: 1px solid #ead8ba;
+            border-radius: 18px;
+            padding: 22px 20px;
+            min-height: 180px;
+            box-shadow: 0 6px 18px rgba(114, 93, 64, 0.06);
+        }
 
-    .btn-secondary {
-        color: var(--sage-dark) !important;
-        border-color: rgba(102,115,86,0.26);
-        background: rgba(255,255,255,0.58);
-    }
+        .service-icon {
+            font-size: 26px;
+            margin-bottom: 18px;
+        }
 
-    .section-title {
-        font-size: clamp(1.7rem, 3vw, 2.35rem);
-        margin: 2.4rem 0 0.7rem 0;
-        color: var(--text);
-        font-weight: 750;
-    }
+        .service-title {
+            color: #4f5540;
+            font-weight: 800;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
 
-    .section-intro {
-        color: var(--muted);
-        max-width: 900px;
-        line-height: 1.7;
-        font-size: 1.03rem;
-        margin-bottom: 1.2rem;
-    }
+        .service-desc {
+            color: #67625d;
+            font-size: 13.5px;
+            line-height: 1.7;
+        }
 
-    .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-    }
+        .focus-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin-bottom: 20px;
+        }
 
-    .service-card, .info-card, .step-card, .contact-card {
-        background: var(--card);
-        border: 1px solid rgba(200,161,74,0.18);
-        border-radius: 24px;
-        padding: 1.2rem;
-        box-shadow: 0 14px 30px rgba(61,57,53,0.06);
-        height: 100%;
-    }
+        .focus-card {
+            background: rgba(255, 252, 246, 0.96);
+            border: 1px solid #ead8ba;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 6px 18px rgba(114, 93, 64, 0.05);
+        }
 
-    .service-icon { font-size: 1.9rem; margin-bottom: 0.5rem; }
+        .focus-title {
+            color: #4f5540;
+            font-weight: 800;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
 
-    .service-card h3, .info-card h3, .step-card h3 {
-        margin: 0 0 0.5rem 0;
-        color: var(--sage-dark);
-        font-size: 1.1rem;
-    }
+        .phrase-box {
+            background: linear-gradient(120deg, #e9e5d9 0%, #f3e8e5 50%, #eee1e7 100%);
+            border: 1px solid #ead8ba;
+            border-radius: 22px;
+            padding: 42px 26px;
+            text-align: center;
+            margin: 28px 0 22px 0;
+        }
 
-    .service-card p, .info-card p, .step-card p {
-        color: var(--muted);
-        line-height: 1.6;
-        margin: 0;
-        font-size: 0.98rem;
-    }
+        .phrase-main {
+            color: #b29ac8;
+            font-family: Georgia, serif;
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
 
-    .two-col {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
+        .phrase-sub {
+            color: #58534e;
+            font-size: 14px;
+        }
 
-    .quote-box {
-        margin-top: 2rem;
-        padding: 2rem;
-        border-radius: 28px;
-        background: linear-gradient(135deg, rgba(140,155,120,0.20), rgba(169,145,179,0.16));
-        border: 1px solid rgba(200,161,74,0.18);
-        text-align: center;
-    }
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
 
-    .quote-box h2 {
-        font-family: Georgia, 'Times New Roman', serif;
-        color: var(--lilac);
-        font-size: clamp(1.8rem, 4vw, 3rem);
-        font-weight: 500;
-        margin-bottom: 0.6rem;
-    }
+        .step-card {
+            background: rgba(255, 252, 246, 0.96);
+            border: 1px solid #ead8ba;
+            border-radius: 18px;
+            padding: 22px 20px;
+            min-height: 155px;
+            box-shadow: 0 6px 18px rgba(114, 93, 64, 0.05);
+        }
 
-    .contact-card {
-        margin-top: 2rem;
-        border-radius: 32px;
-        padding: 1.6rem;
-    }
+        .step-title {
+            color: #4f5540;
+            font-weight: 800;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
 
-    .contact-grid {
-        display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
-        gap: 1.2rem;
-        align-items: center;
-    }
+        .step-desc {
+            color: #67625d;
+            font-size: 13px;
+            line-height: 1.7;
+        }
 
-    .contact-number {
-        font-size: clamp(1.6rem, 3vw, 2.35rem);
-        color: var(--sage-dark);
-        font-weight: 800;
-        margin: 0.4rem 0;
-    }
+        .warning-box {
+            background: #fdecec;
+            border: 1px solid #f5c8c8;
+            color: #7a3b3b;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 24px;
+        }
 
-    .notice {
-        background: rgba(255,255,255,0.62);
-        border-left: 4px solid var(--gold);
-        padding: 1rem 1.1rem;
-        border-radius: 18px;
-        color: var(--muted);
-        line-height: 1.55;
-        font-size: 0.95rem;
-    }
+        @media (max-width: 900px) {
+            .services-grid,
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
 
-    .footer {
-        text-align: center;
-        color: var(--muted);
-        font-size: 0.9rem;
-        margin-top: 2rem;
-        padding-bottom: 1rem;
-    }
+            .focus-grid {
+                grid-template-columns: 1fr;
+            }
 
-    @media (max-width: 900px) {
-        .hero-content, .two-col, .contact-grid { grid-template-columns: 1fr; }
-        .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .logo-img, .logo-fallback { width: 130px; height: 130px; }
-    }
+            .profile-row {
+                align-items: flex-start;
+            }
 
-    @media (max-width: 560px) {
-        .cards-grid { grid-template-columns: 1fr; }
-        .hero-card, .contact-card { border-radius: 22px; padding: 0.8rem; }
-        .hero-content { padding: 1rem 0.4rem 0.4rem 0.4rem; }
-        .hero-subtitle { letter-spacing: 0.15em; }
-        .cta-row a { width: 100%; }
-    }
+            .title {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .profile-row {
+                flex-direction: column;
+                text-align: left;
+            }
+
+            .services-grid,
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .phrase-main {
+                font-size: 30px;
+            }
+
+            .title {
+                font-size: 25px;
+            }
+
+            .logo-img,
+            .logo-fallback {
+                width: 100px;
+                height: 100px;
+            }
+        }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# =====================================================
-# HTML DINÁMICO SIN ERROR POR ARCHIVOS FALTANTES
-# =====================================================
-if PORTADA_URI:
-    portada_html = f'<img class="portada-img" src="{PORTADA_URI}" alt="Portada de Marilin Amaya Psicóloga">'
-else:
-    portada_html = f'''
-    <div class="portada-fallback">
-        <div>
-            <div class="eyebrow">Psicología y bienestar</div>
-            <h1>{BUSINESS_NAME}</h1>
-            <p>{BRAND_LINE}</p>
-        </div>
-    </div>
-    '''
 
-if LOGO_URI:
-    logo_html = f'<img class="logo-img" src="{LOGO_URI}" alt="Logo de Marilin Amaya Psicóloga">'
+# =========================================================
+# PANTALLA ÚNICA
+# =========================================================
+
+if portada_b64:
+    portada_html = f'<img class="cover-img" src="data:image/jpeg;base64,{portada_b64}" alt="Portada Marilin Amaya Psicóloga">'
+else:
+    portada_html = '<div class="cover-fallback">MARILIN AMAYA</div>'
+
+if logo_b64:
+    logo_html = f'<img class="logo-img" src="data:image/png;base64,{logo_b64}" alt="Logo Marilin Amaya">'
 else:
     logo_html = '<div class="logo-fallback">MA</div>'
 
-# =====================================================
-# PORTADA
-# =====================================================
+
 st.markdown(
     f"""
-    <section class="hero-card">
+    <div class="main-card">
         {portada_html}
-        <div class="hero-content">
-            <div>{logo_html}</div>
+
+        <div class="profile-row">
+            <div>
+                {logo_html}
+            </div>
+
             <div>
                 <div class="eyebrow">Psicología y bienestar</div>
-                <h1 class="hero-title">{BUSINESS_NAME}</h1>
-                <div class="hero-subtitle">{PROFESSION}</div>
-                <p class="hero-text">
-                    {BRAND_LINE} Atención orientada a la escucha, la confidencialidad y el acompañamiento profesional.
-                </p>
-                <div class="cta-row">
-                    <a class="btn-primary" href="{WHATSAPP_URL}" target="_blank">Agendar cita por WhatsApp</a>
-                    <a class="btn-secondary" href="#servicios">Ver servicios</a>
+                <div class="title">MARILIN AMAYA</div>
+                <div class="eyebrow" style="font-size:14px; margin-bottom:6px;">PSICÓLOGA</div>
+                <div class="subtitle">
+                    Te acompaño en tu proceso de bienestar emocional y desarrollo personal.
+                    Atención orientada a la escucha, la confidencialidad y el acompañamiento profesional.
+                </div>
+
+                <div class="btn-row">
+                    <a class="btn-primary" href="{WHATSAPP_URL}" target="_blank">
+                        Agendar cita por WhatsApp
+                    </a>
+                    <a class="btn-secondary" href="#servicios">
+                        Ver servicios
+                    </a>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
     """,
     unsafe_allow_html=True,
 )
 
-# =====================================================
-# SERVICIOS
-# =====================================================
-st.markdown('<h2 class="section-title" id="servicios">Servicios de asesoramiento psicológico</h2>', unsafe_allow_html=True)
+
+st.markdown('<div id="servicios"></div>', unsafe_allow_html=True)
+st.markdown("## Servicios de asesoramiento psicológico")
 st.markdown(
-    '<p class="section-intro">Espacio profesional dirigido a fortalecer el bienestar emocional, el autoconocimiento y las estrategias personales para afrontar situaciones cotidianas.</p>',
+    """
+    <div class="section-text">
+        Espacio profesional dirigido a fortalecer el bienestar emocional, el autoconocimiento
+        y las estrategias personales para afrontar situaciones cotidianas.
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 
 st.markdown(
     """
-    <div class="cards-grid">
+    <div class="services-grid">
         <div class="service-card">
             <div class="service-icon">🌿</div>
-            <h3>Bienestar emocional</h3>
-            <p>Orientación para reconocer emociones, ordenar pensamientos y fortalecer el equilibrio personal.</p>
+            <div class="service-title">Bienestar emocional</div>
+            <div class="service-desc">
+                Orientación para reconocer emociones, ordenar pensamientos y fortalecer el equilibrio personal.
+            </div>
         </div>
+
         <div class="service-card">
             <div class="service-icon">🧘</div>
-            <h3>Estrés y ansiedad</h3>
-            <p>Acompañamiento para identificar detonantes y aplicar estrategias de manejo cotidiano.</p>
+            <div class="service-title">Estrés y ansiedad</div>
+            <div class="service-desc">
+                Acompañamiento para identificar detonantes y aplicar estrategias de manejo cotidiano.
+            </div>
         </div>
+
         <div class="service-card">
             <div class="service-icon">🤍</div>
-            <h3>Autoestima</h3>
-            <p>Fortalecimiento de la seguridad personal, autovaloración y toma de decisiones conscientes.</p>
+            <div class="service-title">Autoestima</div>
+            <div class="service-desc">
+                Fortalecimiento de la seguridad personal, autovaloración y toma de decisiones conscientes.
+            </div>
         </div>
+
         <div class="service-card">
             <div class="service-icon">🤝</div>
-            <h3>Relaciones saludables</h3>
-            <p>Orientación para mejorar comunicación, límites, vínculos y resolución de conflictos.</p>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-# =====================================================
-# ENFOQUE
-# =====================================================
-st.markdown('<h2 class="section-title">Enfoque de atención</h2>', unsafe_allow_html=True)
-st.markdown(
-    """
-    <div class="two-col">
-        <div class="info-card">
-            <h3>Espacio seguro y confidencial</h3>
-            <p>La atención se realiza desde una comunicación respetuosa, ética y centrada en la persona.</p>
-        </div>
-        <div class="info-card">
-            <h3>Atención previa cita</h3>
-            <p>Las sesiones se coordinan por WhatsApp, según disponibilidad horaria y modalidad de atención.</p>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    """
-    <div class="quote-box">
-        <h2>Escucha. Comprende. Acompaña.</h2>
-        <p>Un proceso psicológico puede ayudarte a mirar con mayor claridad lo que sientes, piensas y necesitas.</p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-# =====================================================
-# PASOS
-# =====================================================
-st.markdown('<h2 class="section-title">¿Cómo agendar una cita?</h2>', unsafe_allow_html=True)
-st.markdown(
-    """
-    <div class="cards-grid">
-        <div class="step-card">
-            <h3>1. Escribe por WhatsApp</h3>
-            <p>Solicita información sobre disponibilidad, horarios y modalidad de atención.</p>
-        </div>
-        <div class="step-card">
-            <h3>2. Indica tu motivo de consulta</h3>
-            <p>Comparte información general para orientar la coordinación inicial.</p>
-        </div>
-        <div class="step-card">
-            <h3>3. Coordina fecha y hora</h3>
-            <p>Se confirma la cita según disponibilidad y condiciones del servicio.</p>
-        </div>
-        <div class="step-card">
-            <h3>4. Inicia tu proceso</h3>
-            <p>Recibe orientación profesional en un espacio de escucha y acompañamiento.</p>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-# =====================================================
-# CONTACTO
-# =====================================================
-st.markdown(
-    f"""
-    <section class="contact-card" id="contacto">
-        <div class="contact-grid">
-            <div>
-                <div class="eyebrow">Contacto</div>
-                <h2 class="section-title" style="margin-top:0.2rem;">Agenda tu cita</h2>
-                <p class="section-intro" style="margin-bottom:0.4rem;">Comunícate directamente por WhatsApp para consultar disponibilidad y recibir información del servicio.</p>
-                <p class="contact-number">{PHONE_DISPLAY}</p>
-                <p style="color:var(--muted);"><strong>Horario:</strong> {SCHEDULE}<br><strong>Ubicación:</strong> {CITY}</p>
-                <div class="cta-row">
-                    <a class="btn-primary" href="{WHATSAPP_URL}" target="_blank">Enviar mensaje</a>
-                    <a class="btn-secondary" href="{INSTAGRAM_URL}" target="_blank">Instagram</a>
-                    <a class="btn-secondary" href="{FACEBOOK_URL}" target="_blank">Facebook</a>
-                </div>
-            </div>
-            <div class="notice">
-                <strong>Nota importante:</strong><br>
-                Este sitio permite coordinar información y citas.
-                <br><br>
-                <strong>Dato profesional:</strong><br>
-                Psicologa colegiada
+            <div class="service-title">Relaciones saludables</div>
+            <div class="service-desc">
+                Orientación para mejorar comunicación, límites, vínculos y resolución de conflictos.
             </div>
         </div>
-    </section>
+    </div>
     """,
     unsafe_allow_html=True,
 )
 
+
+st.markdown("## Enfoque de atención")
+
 st.markdown(
-    f"""
-    <div class="footer">
-        © {BUSINESS_NAME} | Psicología y bienestar emocional. Página web desarrollada en Python con Streamlit.
+    """
+    <div class="focus-grid">
+        <div class="focus-card">
+            <div class="focus-title">Espacio seguro y confidencial</div>
+            <div class="service-desc">
+                La atención se realiza desde una comunicación respetuosa, ética y centrada en la persona.
+            </div>
+        </div>
+
+        <div class="focus-card">
+            <div class="focus-title">Atención previa cita</div>
+            <div class="service-desc">
+                Las sesiones se coordinan por WhatsApp, según disponibilidad horaria y modalidad de atención.
+            </div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+st.markdown(
+    """
+    <div class="phrase-box">
+        <div class="phrase-main">Escucha. Comprende. Acompaña.</div>
+        <div class="phrase-sub">
+            Un proceso psicológico puede ayudarte a mirar con mayor claridad lo que sientes, piensas y necesitas.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+st.markdown("## ¿Cómo agendar una cita?")
+
+st.markdown(
+    """
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-title">1. Escribe por WhatsApp</div>
+            <div class="step-desc">
+                Solicita información sobre disponibilidad, horarios y modalidad de atención.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title">2. Indica tu motivo de consulta</div>
+            <div class="step-desc">
+                Comparte información general para orientar la coordinación inicial.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title">3. Coordina fecha y hora</div>
+            <div class="step-desc">
+                Se confirma la cita según disponibilidad y condiciones del servicio.
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-title">4. Inicia tu proceso</div>
+            <div class="step-desc">
+                Recibe orientación profesional en un espacio de escucha y acompañamiento.
+            </div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+st.markdown(
+    """
+    <div class="warning-box">
+        <strong>Nota importante:</strong> Este canal es informativo y de coordinación de citas.
+        No reemplaza servicios de emergencia. Si existe una situación de riesgo inmediato,
+        acude al centro de salud o servicio de emergencia más cercano.
     </div>
     """,
     unsafe_allow_html=True,
