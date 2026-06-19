@@ -17,7 +17,7 @@ CITY = "Perú"
 
 # Cambiar cuando tenga los enlaces reales:
 INSTAGRAM_URL = "https://www.instagram.com/psico._marilin?igsh=MXF0dnlrdHpob25yaA=="
-
+FACEBOOK = "https://www.facebook.com/"
 
 WA_TEXT = quote("Hola Marilin, deseo información para agendar una cita de asesoramiento psicológico.")
 WHATSAPP_URL = f"https://wa.me/{PHONE_WHATSAPP}?text={WA_TEXT}"
