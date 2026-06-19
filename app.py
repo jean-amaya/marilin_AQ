@@ -589,7 +589,7 @@ st.markdown(
                 Este sitio permite coordinar información y citas.
                 <br><br>
                 <strong>Dato profesional:</strong><br>
-                Psicolocga colegiada
+                Psicologa colegiada
             </div>
         </div>
     </section>
